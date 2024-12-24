@@ -9,6 +9,12 @@ public class ParkingManager(ParkingLot parkingLot)
 
 	public string ParkVehicle(string registrationNumber, string color, string type)
 	{
+
+		if (_parkingLot.Slots.Count == 0)
+		{
+			return "Parking lot has not been initialized. Please create a parking lot first.";
+		}
+		
 		if (!Enum.TryParse(type, true, out VehiclesType vehicleType))
 		{
 			return "Sorry, only Mobil and Motor are allowed.";
@@ -41,7 +47,7 @@ public class ParkingManager(ParkingLot parkingLot)
 		var vehicle = slot.Vehicle;
 		decimal fee = vehicle.CalculateParkingFee();
 		slot.Vehicle = null;
-		return $"Slot number {slotNumber} is free. Total fee for {vehicle.GetParkingDurationInHours} hours : Rp.{fee} ";
+		return $"Slot number {slotNumber} is free. Total fee for {vehicle.GetParkingDurationInHours()} hours : Rp.{fee} ";
 	}
 
 
