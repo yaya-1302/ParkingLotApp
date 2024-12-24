@@ -61,13 +61,11 @@ public class ParkingManager(ParkingLot parkingLot)
 
 	public string GetReportByType(string type)
 	{
-		// Validate input type
 		if (!Enum.TryParse(type, true, out VehiclesType vehicleType))
 		{
 			return "Invalid vehicle type. Please use 'Mobil' or 'Motor'.";
 		}
 
-		// Count vehicles by type
 		var count = _parkingLot.Slots.Count(s => s.Vehicle?.Type == vehicleType);
 		return $"{count} {type} vehicles are currently parked.";
 	}
@@ -128,7 +126,4 @@ public class ParkingManager(ParkingLot parkingLot)
 			? string.Join(Environment.NewLine, result)
 			: "No vehicles found with the specified color.";
 	}
-
-
-
 }

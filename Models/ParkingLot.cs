@@ -15,18 +15,9 @@ public class ParkingLot
 		}
 	}
 
-	public bool HasAvailableSlots()
-	{
-		return Slots.Any(slot => slot.Vehicle == null);
-	}
-	
 	public ParkingSlot? FindAvailableSlot()
 	{
 		return Slots.FirstOrDefault(slot => slot.Vehicle == null);
 	}
 
-	public ParkingSlot? GetSlotByRegistrationNumber(string registrationNumber)
-	{
-		return Slots.FirstOrDefault(slot => slot.Vehicle?.RegistrationNumber == registrationNumber);
-	}
 }

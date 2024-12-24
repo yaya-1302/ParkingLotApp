@@ -49,7 +49,7 @@ namespace ParkingLotApp.Controller
 				case "registration_numbers_for_vehicles_with_color":
 					HandleVehicleByColor(commandArgs);
 					break;
-					
+
 				case "slot_numbers_for_vehicles_with_colour":
 					HandleSlotNumbersByColor(commandArgs);
 					break;
@@ -76,9 +76,8 @@ namespace ParkingLotApp.Controller
 				return;
 			}
 
-			// Create a new parking lot with the specified number of slots
 			ParkingLot parkingLot = new(numberOfSlots);
-			manager = new ParkingManager(parkingLot); // Update the ParkingManager with the new lot
+			manager = new ParkingManager(parkingLot); 
 			Console.WriteLine($"Created a parking lot with {numberOfSlots} slots.");
 		}
 
