@@ -79,11 +79,22 @@ public class ParkingManager(ParkingLot parkingLot)
 	public string GetVehiclesByPlate(string plateType)
 	{
 		var vehicles = _parkingLot.Slots
-			.Where(slot => slot.Vehicle != null && (plateType == "odd" ? int.Parse(slot.Vehicle.RegistrationNumber.Split('-')[1]) % 2 != 0 : int.Parse(slot.Vehicle.RegistrationNumber.Split('-')[1]) % 2 == 0))
+			.Where(slot =>
+			{
+				if (slot.Vehicle == null) return false;
+
+				var plateParts = slot.Vehicle.RegistrationNumber.Split('-');
+				if (plateParts.Length < 2 || !int.TryParse(plateParts[1], out int plateNumber))
+				{
+					return false;
+				}
+
+				return plateType == "odd" ? plateNumber % 2 != 0 : plateNumber % 2 == 0;
+			})
 			.Select(slot => slot.Vehicle?.RegistrationNumber)
 			.ToList();
 
-		return string.Join(", ", vehicles);
+		return vehicles.Count > 0 ? string.Join(", ", vehicles) : "No vehicles found.";
 	}
 
 	public string GetVehiclesByColor(string color)
