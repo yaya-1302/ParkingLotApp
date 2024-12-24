@@ -30,8 +30,6 @@ public class ParkingManager(ParkingLot parkingLot)
 		return $"Allocated slot number: {availableSlot.SlotNumber}";
 	}
 
-
-
 	public string LeaveSlot(int slotNumber)
 	{
 		var slot = _parkingLot.Slots.FirstOrDefault(s => s.SlotNumber == slotNumber);
@@ -101,7 +99,6 @@ public class ParkingManager(ParkingLot parkingLot)
 
 	public string GetSlotForVehicleByRegistration(string registrationNumber)
 	{
-		// Find the slot with the matching vehicle registration number
 		var slot = _parkingLot.Slots
 			.FirstOrDefault(s => s.Vehicle != null && s.Vehicle.RegistrationNumber.Equals(registrationNumber, StringComparison.OrdinalIgnoreCase));
 
@@ -110,7 +107,28 @@ public class ParkingManager(ParkingLot parkingLot)
 			return $"Vehicle with registration number {registrationNumber} not found.";
 		}
 
-		// Return the slot number if the vehicle is found
 		return $"Slot number {slot.SlotNumber} is occupied by vehicle {registrationNumber}.";
 	}
+	public string GetSlotNumbersByColor(string color)
+	{
+		var groupedSlots = _parkingLot.Slots
+			.Where(slot => slot.Vehicle != null && 
+						   slot.Vehicle.Color.Equals(color, StringComparison.OrdinalIgnoreCase))
+			.GroupBy(slot => slot.Vehicle!.Type) 
+			.ToDictionary(group => group.Key, group => group.Select(slot => slot.SlotNumber).ToList());
+
+		var result = groupedSlots.Select(group =>
+		{
+			string vehicleType = Enum.GetName(typeof(VehiclesType), group.Key) ?? "Unknown";
+			string slotNumbers = string.Join(", ", group.Value);
+			return $"{vehicleType}: {slotNumbers}";
+		});
+
+		return result.Any()
+			? string.Join(Environment.NewLine, result)
+			: "No vehicles found with the specified color.";
+	}
+
+
+
 }

@@ -1,156 +1,176 @@
 using ParkingLotApp.Models;
 using ParkingLotApp.Services;
 
-namespace ParkingLotApp.Controller;
-
-public static class CommandHandler
+namespace ParkingLotApp.Controller
 {
-	public static void HandleCommand(string[]? commandArgs, ParkingManager manager)
+	public static class CommandHandler
 	{
-		if (commandArgs == null || commandArgs.Length < 1) return;
+		private static ParkingManager manager;
 
-		switch (commandArgs[0])
+		static CommandHandler()
 		{
-			case "create_parking_lot":
-				HandleCreateParkingLot(commandArgs, manager);
-				break;
-
-			case "park":
-				HandleParkVehicle(commandArgs, manager);
-				break;
-
-			case "leave":
-				HandleLeaveVehicle(commandArgs, manager);
-				break;
-
-			case "status":
-				HandleStatus(manager);
-				break;
-
-			case "type_of_vehicles":
-				HandleVehicleTypeReport(commandArgs, manager);
-				break;
-
-			case "registration_numbers_for_vehicles_with_colour":
-				HandleVehicleByColor(commandArgs, manager);
-				break;
-
-			case "slot_number_for_registration_number":
-				HandleSlotByRegistration(commandArgs, manager);
-				break;
-
-			case "registration_numbers_for_vehicles_with_ood_plate":
-				HandleVehiclesByPlate(commandArgs, manager);
-				break;
-
-			case "exit":
-				Environment.Exit(0);
-				break;
-
-			default:
-				Console.WriteLine("Invalid command.");
-				break;
-		}
-	}
-
-
-	private static void HandleCreateParkingLot(string[] commandArgs, ParkingManager manager)
-	{
-		if (commandArgs.Length < 2 || !int.TryParse(commandArgs[1], out int numberOfSlots) || numberOfSlots <= 0)
-		{
-			Console.WriteLine("Please specify a valid number of parking slots.");
-			return;
+			manager = new ParkingManager(new ParkingLot(0));
 		}
 
-		// Create a new parking lot with the specified number of slots
-		ParkingLot parkingLot = new(numberOfSlots);
-		manager = new ParkingManager(parkingLot);
-		Console.WriteLine($"Created a parking lot with {numberOfSlots} slots.");
-	}
-
-	// Handler for parking vehicle
-	private static void HandleParkVehicle(string[] commandArgs, ParkingManager manager)
-	{
-		if (commandArgs.Length < 4)
+		public static void HandleCommand(string[]? commandArgs)
 		{
-			Console.WriteLine("Please provide registration number, color, and vehicle type.");
-			return;
+			if (commandArgs == null || commandArgs.Length < 1) return;
+
+			switch (commandArgs[0])
+			{
+				case "create_parking_lot":
+					HandleCreateParkingLot(commandArgs);
+					break;
+
+				case "park":
+					HandleParkVehicle(commandArgs);
+					break;
+
+				case "leave":
+					HandleLeaveVehicle(commandArgs);
+					break;
+
+				case "status":
+					HandleStatus();
+					break;
+
+				case "type_of_vehicles":
+					HandleVehicleTypeReport(commandArgs);
+					break;
+
+				case "registration_numbers_for_vehicles_with_odd_plate":
+					HandleVehiclesByPlate("odd");
+					break;
+
+				case "registration_numbers_for_vehicles_with_even_plate":
+					HandleVehiclesByPlate("even");
+					break;
+
+				case "registration_numbers_for_vehicles_with_color":
+					HandleVehicleByColor(commandArgs);
+					break;
+					
+				case "slot_numbers_for_vehicles_with_colour":
+					HandleSlotNumbersByColor(commandArgs);
+					break;
+
+				case "slot_number_for_registration_number":
+					HandleSlotByRegistration(commandArgs);
+					break;
+				
+				
+				case "exit":
+					Environment.Exit(0);
+					break;
+				default:
+					Console.WriteLine("Invalid command.");
+					break;
+			}
 		}
 
-		string registrationNumber = commandArgs[1];
-		string color = commandArgs[2];
-		string type = commandArgs[3];
-		Console.WriteLine(manager.ParkVehicle(registrationNumber, color, type));
-	}
-
-	// Handler for leaving vehicle
-	private static void HandleLeaveVehicle(string[] commandArgs, ParkingManager manager)
-	{
-		if (commandArgs.Length < 2 || !int.TryParse(commandArgs[1], out int slotNumber))
+		private static void HandleCreateParkingLot(string[] commandArgs)
 		{
-			Console.WriteLine("Please provide a valid slot number.");
-			return;
+			if (commandArgs.Length < 2 || !int.TryParse(commandArgs[1], out int numberOfSlots) || numberOfSlots <= 0)
+			{
+				Console.WriteLine("Please specify a valid number of parking slots.");
+				return;
+			}
+
+			// Create a new parking lot with the specified number of slots
+			ParkingLot parkingLot = new(numberOfSlots);
+			manager = new ParkingManager(parkingLot); // Update the ParkingManager with the new lot
+			Console.WriteLine($"Created a parking lot with {numberOfSlots} slots.");
 		}
 
-		Console.WriteLine(manager.LeaveSlot(slotNumber));
-	}
-
-	// Handler for showing parking lot status
-	private static void HandleStatus(ParkingManager manager)
-	{
-		Console.WriteLine(manager.GetParkingStatus());
-
-	}
-
-	// Handler for type of vehicles report
-	private static void HandleVehicleTypeReport(string[] commandArgs, ParkingManager manager)
-	{
-		if (commandArgs.Length < 2)
+		private static void HandleParkVehicle(string[] commandArgs)
 		{
-			Console.WriteLine("Please specify a vehicle type (Mobil or Motor).");
-			return;
+			if (commandArgs.Length < 4)
+			{
+				Console.WriteLine("Please provide registration number, color, and vehicle type.");
+				return;
+			}
+
+			string registrationNumber = commandArgs[1];
+			string color = commandArgs[2];
+			string type = commandArgs[3];
+			Console.WriteLine(manager.ParkVehicle(registrationNumber, color, type));
 		}
 
-		string type = commandArgs[1];
-		Console.WriteLine(manager.GetReportByType(type));
-	}
-
-	// Handler for vehicles by color
-	private static void HandleVehicleByColor(string[] commandArgs, ParkingManager manager)
-	{
-		if (commandArgs.Length < 2)
+		private static void HandleLeaveVehicle(string[] commandArgs)
 		{
-			Console.WriteLine("Please specify a color.");
-			return;
+			if (commandArgs.Length < 2 || !int.TryParse(commandArgs[1], out int slotNumber))
+			{
+				Console.WriteLine("Please provide a valid slot number.");
+				return;
+			}
+
+			Console.WriteLine(manager.LeaveSlot(slotNumber));
 		}
 
-		string color = commandArgs[1];
-		Console.WriteLine(manager.GetVehiclesByColor(color));
-	}
-
-	// Handler for vehicles by registration plate prefix
-	private static void HandleVehiclesByPlate(string[] commandArgs, ParkingManager manager)
-	{
-		if (commandArgs.Length < 2)
+		private static void HandleStatus()
 		{
-			Console.WriteLine("Please specify a plate prefix.");
-			return;
+			Console.WriteLine(manager.GetParkingStatus());
 		}
 
-		string platePrefix = commandArgs[1];
-		Console.WriteLine(manager.GetVehiclesByPlate(platePrefix));
-	}
-
-	// Handler for slot number based on registration number
-	private static void HandleSlotByRegistration(string[] commandArgs, ParkingManager manager)
-	{
-		if (commandArgs.Length < 2)
+		private static void HandleVehicleTypeReport(string[] commandArgs)
 		{
-			Console.WriteLine("Please provide a valid registration number.");
-			return;
+			if (commandArgs.Length < 2)
+			{
+				Console.WriteLine("Please specify a vehicle type (Mobil or Motor).");
+				return;
+			}
+
+			string type = commandArgs[1];
+			Console.WriteLine(manager.GetReportByType(type));
 		}
 
-		string registrationNumber = commandArgs[1];
-		Console.WriteLine(manager.GetSlotForVehicleByRegistration(registrationNumber));
+		private static void HandleVehicleByColor(string[] commandArgs)
+		{
+			if (commandArgs.Length < 2)
+			{
+				Console.WriteLine("Please specify a color.");
+				return;
+			}
+
+			string color = commandArgs[1];
+			Console.WriteLine(manager.GetVehiclesByColor(color));
+		}
+
+		private static void HandleVehiclesByPlate(string commandArgs)
+		{
+			if (commandArgs.Length < 2)
+			{
+				Console.WriteLine("Please specify a plate prefix.");
+				return;
+			}
+
+			string platePrefix = commandArgs;
+			Console.WriteLine(manager.GetVehiclesByPlate(platePrefix));
+		}
+
+		private static void HandleSlotByRegistration(string[] commandArgs)
+		{
+			if (commandArgs.Length < 2)
+			{
+				Console.WriteLine("Please provide a valid registration number.");
+				return;
+			}
+
+			string registrationNumber = commandArgs[1];
+			Console.WriteLine(manager.GetSlotForVehicleByRegistration(registrationNumber));
+		}
+
+		private static void HandleSlotNumbersByColor(string[] commandArgs)
+		{
+			if (commandArgs.Length < 2)
+			{
+				Console.WriteLine("Please specify a color.");
+				return;
+			}
+
+			string color = commandArgs[1];
+			Console.WriteLine(manager.GetSlotNumbersByColor(color));
+		}
+
 	}
 }
